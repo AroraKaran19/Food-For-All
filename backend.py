@@ -14,29 +14,61 @@ class Backend:
 
     # restaurant is the child node
 
-    def add_restaurant(self, rest_name, rest_id, foods):
-        self.restaurants_ref = self.ref.child('restaurants')
-        self.restaurants_ref.child(rest_name).child(rest_id).set(foods)
+    # def add_restaurant(self, rest_id, rest_name, foods, org_type):
+    #     self.org_type_ref = self.ref.child(org_type)
+    #     # create foods node
+    #     self.foods_ref = self.org_type_ref.child(rest_id).child('foods')
+    #     self.foods_ref.set(foods)
 
-    def add_org(self, cust_name, cust_id, foods):
-        self.customers_ref = self.ref.child('customers')
-        self.customers_ref.child(cust_name).child(cust_id).set(foods)
+    def validate_user(self, id, password, org_type):
+        self.users_ref = self.ref.child(org_type)
+        return self.users_ref.child(id).get()['password'] == password
 
-    def add_food(self, food_name, food_id, quantity):
-        self.foods_ref = self.ref.child('foods')
-        self.foods_ref.child(food_name).child(food_id).set(quantity)
+    def check_user(self, id, org_type):
+        self.users_ref = self.ref.child(org_type)
+        return self.users_ref.child(id).get() != None
 
-    def get_restaurant(self, rest_name):
-        self.restaurants_ref = self.ref.child('restaurants')
-        return self.restaurants_ref.child(rest_name).get()
+    
+    def add_user(self, id, name, password, org_type):
+        self.users_ref = self.ref.child(org_type)
+        self.users_ref.child(id).set({
+            'name': name,
+            'password': password
+        })
 
-    def get_org(self, cust_name):
-        self.customers_ref = self.ref.child('customers')
-        return self.customers_ref.child(cust_name).get()
+    # add multiple foods with their quantities
+    def add_foods(self, rest_id, foods, org_type):
+        self.foods_ref = self.ref.child(org_type).child(rest_id).child('foods')
+        self.foods_ref.set(foods)
 
-    def get_food(self, food_name):
-        self.foods_ref = self.ref.child('foods')
-        return self.foods_ref.child(food_name).get()
+# login else signup
+
+
+def login(org_type):
+    id = input("Enter your id: ")
+    backend = Backend()
+    if backend.check_user(id):
+        password = input("Enter your password: ")
+        if backend.validate_user(id, password):
+            print("Login successful")
+        else:
+            print("Invalid password")
+    else:  
+        print("User not found. Please signup!")
+        name = input("Enter your name: ")
+        password = input("Enter your password: ")
+        backend.add_user(id, name, password, org_type)
+        print("User added successfully")
+
+food_n=int(input("Enter the number of food items you want to add: "))
+foods={}
+for i in range(food_n):
+    food=input("Enter the food item: ")
+    quantity=int(input("Enter the quantity: "))
+    foods[food]=quantity
+
+
+print(backend.add_foods(id, foods))
 
 
 
@@ -47,4 +79,5 @@ class Backend:
 
 # backend = Backend()
 # backend.add_restaurant(rest_name, rest_id, foods)
+
 
