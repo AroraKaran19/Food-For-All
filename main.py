@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import messagebox
+import backend
 import os
 
 database_name = "logininfo.db"
@@ -8,6 +9,38 @@ table_name = "login"
 def on_close(gui):
     if messagebox.askokcancel("Quit", "Are you sure you want to quit?"):
         gui.destroy()
+
+def restaurant_gui():
+    root = Tk()
+    root.title("FFA: Restaurant")
+    root.geometry("800x800")
+    root.resizable(False, False)
+
+    canvas = Canvas(root, width=800, height=800, bg="#263D42")
+    canvas.pack()
+
+    title = Label(root, text="FoodForAll", bg="#263D42", fg="white", font=("Monolisa", 30, "bold"))
+    canvas.create_window(400, 60, window=title)
+    subtitle = Label(root, text="Restaurant", bg="#263D42", fg="white", font=("Monolisa", 15, "bold italic underline"))
+    canvas.create_window(400, 100, window=subtitle)
+
+    menu_frame = Frame(root, bg="white", width=50, height=800)
+    canvas.create_window(0, 0, anchor=NW, window=menu_frame)
+
+    menu_canvas = Canvas(menu_frame, width=50, height=800, bg="white")
+    menu_canvas.pack()
+    menu_canvas.bind("<Leave>", lambda event: menu(event, "close", menu_frame, menu_canvas, menu_button))
+
+    menu_button = Button(menu_canvas, text="☰", bg="black", fg="white", font=("Monolisa", 20, "bold"), activebackground="black", activeforeground="white", command=lambda: menu(None, "open", menu_frame, menu_canvas, menu_button))
+    menu_canvas.create_window(25, 20, window=menu_button)
+    menu_button.bind("<Enter>", lambda event: menu(event, "open", menu_frame, menu_canvas, menu_button))
+
+    setting_button = Button(menu_canvas, text="⚙", bg="black", fg="white", font=("Monolisa", 20, "bold"), activebackground="black", activeforeground="white")
+    menu_canvas.create_window(25, 60, window=setting_button)
+
+    root.eval('tk::PlaceWindow . center')
+    root.protocol("WM_DELETE_WINDOW", lambda: on_close(root))
+    root.mainloop()
 
 def login():
     print("Login")
@@ -71,4 +104,4 @@ def main_menu():
     root.mainloop()
 
 if __name__ == "__main__":
-    main_menu()
+    restaurant_gui()
