@@ -37,8 +37,8 @@ class Backend:
         })
 
     # add multiple foods with their quantities
-    def add_foods(self, rest_id, foods, org_type):
-        self.foods_ref = self.ref.child(org_type).child(rest_id).child('foods')
+    def add_foods(self, id, foods, org_type):
+        self.foods_ref = self.ref.child(org_type).child(id).child('foods')
         self.foods_ref.set(foods)
 
 # login else signup
@@ -47,9 +47,9 @@ class Backend:
 def login(org_type):
     id = input("Enter your id: ")
     backend = Backend()
-    if backend.check_user(id):
+    if backend.check_user(id, org_type):
         password = input("Enter your password: ")
-        if backend.validate_user(id, password):
+        if backend.validate_user(id, password, org_type):
             print("Login successful")
         else:
             print("Invalid password")
@@ -59,6 +59,11 @@ def login(org_type):
         password = input("Enter your password: ")
         backend.add_user(id, name, password, org_type)
         print("User added successfully")
+    return id
+
+
+
+id=login('restaurants')
 
 food_n=int(input("Enter the number of food items you want to add: "))
 foods={}
@@ -67,8 +72,34 @@ for i in range(food_n):
     quantity=int(input("Enter the quantity: "))
     foods[food]=quantity
 
+backend= Backend()
+backend.add_foods(id, foods, 'restaurants')
 
-print(backend.add_foods(id, foods))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
