@@ -6,14 +6,6 @@ import backend
 food_count = 0
 food_list = {}
 
-def side_menu(event, action, menu_frame, menu_canvas, menu_button):
-    menu_button = Button(menu_canvas, text="☰", bg="black", fg="white", font=("Monolisa", 20, "bold"), activebackground="black", activeforeground="white", command=lambda: menu(None, "open", menu_frame, menu_canvas, menu_button))
-    menu_canvas.create_window(25, 20, window=menu_button)
-    menu_button.bind("<Enter>", lambda event: menu(event, "open", menu_frame, menu_canvas, menu_button))
-
-    setting_button = Button(menu_canvas, text="⚙", bg="black", fg="white", font=("Monolisa", 20, "bold"), activebackground="black", activeforeground="white")
-    menu_canvas.create_window(25, 60, window=setting_button)
-
 def ngo_gui():
     root = Tk()
     root.title("FFA: NGO")
@@ -28,24 +20,27 @@ def ngo_gui():
     subtitle = Label(root, text="NGO", bg="#263D42", fg="white", font=("Monolisa", 15, "bold italic underline"))
     canvas.create_window(400, 100, window=subtitle)
 
-    frame = Frame(root, bg="white", height=500, width=700)
+    frame = LabelFrame(root, bg="white", height=500, width=700)
     canvas.create_window(425, 500, window=frame)
 
-    scroll_bar = Scrollbar(frame, orient="vertical", command=canvas.yview)
+    frame_canvas = Canvas(frame, bg="white", width=700, height=500)
+    frame_canvas.pack()
+
+    scroll_bar = Scrollbar(frame, orient="vertical", command=frame_canvas.yview)
     scroll_bar.pack(side=RIGHT, fill="y")
-    canvas.configure(yscrollcommand=scroll_bar.set)
-    canvas.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+    frame_canvas.configure(yscrollcommand=scroll_bar.set)
+    frame_canvas.bind("<Configure>", lambda e: canvas.configure(scrollregion=frame_canvas.bbox("all")))
 
     menu_frame = Frame(root, bg="white", width=50, height=800)
     canvas.create_window(0, 0, anchor=NW, window=menu_frame)
 
     menu_canvas = Canvas(menu_frame, width=50, height=800, bg="white")
     menu_canvas.pack()
-    menu_canvas.bind("<Leave>", lambda event: menu(event, "close", menu_frame, menu_canvas, menu_button))
+    menu_canvas.bind("<Leave>", lambda event: menu(event, "close", menu_frame, menu_canvas, menu_button, logout=True, gui=root))
 
-    menu_button = Button(menu_canvas, text="☰", bg="black", fg="white", font=("Monolisa", 20, "bold"), activebackground="black", activeforeground="white", command=lambda: menu(None, "open", menu_frame, menu_canvas, menu_button))
+    menu_button = Button(menu_canvas, text="☰", bg="black", fg="white", font=("Monolisa", 20, "bold"), activebackground="black", activeforeground="white", command=lambda: menu(None, "open", menu_frame, menu_canvas, menu_button, logout=True, gui=root))
     menu_canvas.create_window(25, 20, window=menu_button)
-    menu_button.bind("<Enter>", lambda event: menu(event, "open", menu_frame, menu_canvas, menu_button))
+    menu_button.bind("<Enter>", lambda event: menu(event, "open", menu_frame, menu_canvas, menu_button, logout=True, gui=root))
 
     setting_button = Button(menu_canvas, text="⚙", bg="black", fg="white", font=("Monolisa", 20, "bold"), activebackground="black", activeforeground="white")
     menu_canvas.create_window(25, 60, window=setting_button)
@@ -128,11 +123,11 @@ def restaurant_gui():
 
     menu_canvas = Canvas(menu_frame, width=50, height=800, bg="white")
     menu_canvas.pack()
-    menu_canvas.bind("<Leave>", lambda event: menu(event, "close", menu_frame, menu_canvas, menu_button))
+    menu_canvas.bind("<Leave>", lambda event: menu(event, "close", menu_frame, menu_canvas, menu_button, logout=True, gui=root))
 
-    menu_button = Button(menu_canvas, text="☰", bg="black", fg="white", font=("Monolisa", 20, "bold"), activebackground="black", activeforeground="white", command=lambda: menu(None, "open", menu_frame, menu_canvas, menu_button))
+    menu_button = Button(menu_canvas, text="☰", bg="black", fg="white", font=("Monolisa", 20, "bold"), activebackground="black", activeforeground="white", command=lambda: menu(None, "open", menu_frame, menu_canvas, menu_button, logout=True, gui=root))
     menu_canvas.create_window(25, 20, window=menu_button)
-    menu_button.bind("<Enter>", lambda event: menu(event, "open", menu_frame, menu_canvas, menu_button))
+    menu_button.bind("<Enter>", lambda event: menu(event, "open", menu_frame, menu_canvas, menu_button, logout=True, gui=root))
 
     setting_button = Button(menu_canvas, text="⚙", bg="black", fg="white", font=("Monolisa", 20, "bold"), activebackground="black", activeforeground="white")
     menu_canvas.create_window(25, 60, window=setting_button)
@@ -142,7 +137,8 @@ def restaurant_gui():
     root.mainloop()
 
 def user_validation(id, password, org_type, gui=None):
-    gui.destroy()
+    if gui != None:
+        gui.destroy()
     if id != "" or password != "":
         check = backend.Backend()
         if check.check_user(id, org_type):
@@ -159,6 +155,8 @@ def user_validation(id, password, org_type, gui=None):
             ask = askokcancel("User Not Found", "User not found!\nDo you want to register?")
             if ask:
                 login("register", id)
+            else:
+                main_menu()
     else:
         showerror("Error", "Please enter all the details!")
 
@@ -237,16 +235,22 @@ def login(method, prev=None):
     login_gui.eval('tk::PlaceWindow . center')
     login_gui.mainloop()
 
-def menu(event, opt, frame, canvas, button, elements=[]):
+def menu(event, opt, frame, canvas, button, elements=[], logout=False, gui=None):
     if opt == "open":
-        frame.config(width=200)
-        canvas.config(width=200)
-        button.config(text="X")
-        menu_title = Label(canvas, text="Menu", bg="white", fg="black", font=("Monolisa", 20, "bold underline"))
-        canvas.create_window(100, 60, window=menu_title)
-        elements.append(menu_title)
-        button.config(command=lambda: menu(None, "close", frame, canvas, button, elements))
-
+        try:
+            frame.config(width=200)
+            canvas.config(width=200)
+            button.config(text="X")
+            menu_title = Label(canvas, text="Menu", bg="white", fg="black", font=("Monolisa", 20, "bold underline"))
+            canvas.create_window(100, 60, window=menu_title)
+            if logout:
+                logout_button = Button(canvas, text="Logout", bg="red", fg="white", font=("Monolisa", 20, "bold"), activebackground="black", activeforeground="white", command=lambda: (gui.destroy(), main_menu()))
+                canvas.create_window(100, 100, window=logout_button)
+                elements.append(logout_button)
+            elements.append(menu_title)
+            button.config(command=lambda: menu(None, "close", frame, canvas, button, elements))
+        except:
+            pass
     else:
         frame.config(width=50)
         canvas.config(width=50)
