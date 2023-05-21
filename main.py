@@ -278,7 +278,7 @@ def main_menu():
     login_button = Button(canvas, text="Login", bg="black", fg="white", font=("Monolisa", 25, "bold"), activebackground="black", activeforeground="white", command=lambda: (root.destroy(), login("login")), pady=25, padx=25)
     canvas.create_window(400, 500, window=login_button)
 
-    exit_button = Button(canvas, text="Exit", bg="black", fg="white", font=("Monolisa", 25, "bold"), activebackground="black", activeforeground="white", command=lambda: on_close(root), pady=25, padx=25)
+    exit_button = Button(canvas, text="Exit", bg="black", fg="white", font=("Monolisa", 25, "bold"), activebackground="black", activeforeground="white", command=lambda: root.destroy(), pady=25, padx=25)
     canvas.create_window(400, 650, window=exit_button)
 
     menu_frame = Frame(root, bg="white", width=50, height=800)
