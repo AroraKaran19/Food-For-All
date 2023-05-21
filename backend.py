@@ -72,10 +72,10 @@ def search_food(food_name):
             print(rest, foods[food_name])
 
 
+if __name__ == "__main__":
+    id=login('restaurants')
 
-id=login('restaurants')
-
-search_food('roti')
+    search_food('roti')
 # food_n=int(input("Enter the number of food items you want to add: "))
 # foods={}
 # for i in range(food_n):
