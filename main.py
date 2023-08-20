@@ -243,21 +243,22 @@ def menu(event, opt, frame, canvas, button, elements=[], logout=False, gui=None)
             button.config(text="X")
             menu_title = Label(canvas, text="Menu", bg="white", fg="black", font=("Monolisa", 20, "bold underline"))
             canvas.create_window(100, 60, window=menu_title)
+            elements.append(menu_title)
             if logout:
                 logout_button = Button(canvas, text="Logout", bg="red", fg="white", font=("Monolisa", 20, "bold"), activebackground="black", activeforeground="white", command=lambda: (gui.destroy(), main_menu()))
                 canvas.create_window(100, 100, window=logout_button)
                 elements.append(logout_button)
-            elements.append(menu_title)
-            button.config(command=lambda: menu(None, "close", frame, canvas, button, elements))
+            button.config(command=lambda: menu(None, "close", frame, canvas, button, elements, logout))
         except:
             pass
     else:
         frame.config(width=50)
         canvas.config(width=50)
         button.config(text="☰")
-        button.config(command=lambda: menu(None, "open", frame, canvas, button))
-        for ele in elements:
-            ele.destroy()
+        if elements != []:
+            for ele in elements:
+                ele.destroy()
+        button.config(command=lambda: menu(None, "open", frame, canvas, button, logout=logout))
 
 def main_menu():
     root = Tk()
