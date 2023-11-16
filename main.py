@@ -217,8 +217,12 @@ def menu(event, opt, frame, canvas, button, elements=[], logout=False, gui=None)
         canvas.config(width=50)
         button.config(text="☰")
         button.config(command=lambda: menu(None, "open", frame, canvas, button))
-        for ele in elements:
-            ele.destroy()
+        if len(elements) != 0:
+            for ele in elements:
+                try:
+                    ele.destroy()
+                except:
+                    pass
 
 def login(method, prev=None):
     login_gui = Tk()
@@ -236,7 +240,7 @@ def login(method, prev=None):
     if os.name == "nt":
         canvas.create_window(50, 40, window=back_button)
     else:
-        canvas.create_window(25, 25, window=back_button)
+        canvas.create_window(50, 40, window=back_button)
 
     org_type_label = Label(login_gui, text="Organization Type", bg="#263D42", fg="white", font=("Monolisa", 20, "bold"))
     canvas.create_window(400, 200, window=org_type_label)
@@ -257,7 +261,7 @@ def login(method, prev=None):
         if os.name == "nt":
             canvas.create_window(700, 40, window=register_button)
         else:
-            canvas.create_window(700, 25, window=register_button)
+            canvas.create_window(700, 40, window=register_button)
     else:
         login_gui.title("FFA: Register")
         subtitle = Label(login_gui, text="Register", bg="#263D42", fg="white", font=("Monolisa", 15, "bold italic underline"))
@@ -287,13 +291,13 @@ def login(method, prev=None):
         if os.name == "nt":
             canvas.create_window(400, 620, window=login_button)
         else:
-            canvas.create_window(400, 600, window=login_button)
+            canvas.create_window(400, 620, window=login_button)
     else:
         register_button = Button(login_gui, text="Register", bg="black", fg="white", font=("Monolisa", 20, "bold"), activebackground="black", activeforeground="white", command= lambda: user_registration(str(name.get()), str(id.get()), str(password.get()), str(org_type.get()), login_gui))
         if os.name == "nt":
             canvas.create_window(400, 620, window=register_button)
         else:
-            canvas.create_window(400, 600, window=register_button)
+            canvas.create_window(400, 620, window=register_button)
 
     login_gui.eval('tk::PlaceWindow . center')
     login_gui.mainloop()
