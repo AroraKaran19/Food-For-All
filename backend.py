@@ -2,7 +2,8 @@ import firebase_admin
 from firebase_admin import db
 import os
 
-cred_object = firebase_admin.credentials.Certificate(os.path.join("keys","foodforall-45f30-firebase-adminsdk-9xuwc-34706f48e2.json"))
+path = next((filename for filename in os.listdir("keys") if filename.startswith("foodforall-45f30")), None)
+cred_object = firebase_admin.credentials.Certificate(os.path.join("keys", path))
 
 firebase_admin.initialize_app(cred_object, {
          'databaseURL': 'https://foodforall-45f30-default-rtdb.firebaseio.com'
