@@ -2,11 +2,13 @@ import firebase_admin
 from firebase_admin import db
 import os
 
-path = next((filename for filename in os.listdir("keys") if filename.startswith("foodforall-45f30")), None)
-cred_object = firebase_admin.credentials.Certificate(os.path.join("keys", path))
+# we no longer need the path variable since we have instructed to rename the key file to key.json in README.md
+# path = next((filename for filename in os.listdir("keys") if filename.startswith("foodforall-45f30")), None)
+cred_object = firebase_admin.credentials.Certificate(os.path.join("keys", "key.json"))
 
 firebase_admin.initialize_app(cred_object, {
-         'databaseURL': 'https://foodforall-45f30-default-rtdb.firebaseio.com'
+          # databaseURL should be placed in keys/firebase_url.txt
+          'databaseURL': open(os.path.join("keys", "firebase_url.txt"), 'r').read()
 })
 
 class Backend:
@@ -40,7 +42,7 @@ class Backend:
     # add multiple foods with their quantities
     def add_foods(self, id, foods, org_type):
         self.foods_ref = self.ref.child(org_type).child(id).child('foods')
-        self.foods_ref.set(foods)
+        self.foods_ref.update(foods)
 
     def list_foods(self, id, org_type):
         self.foods_ref = self.ref.child(org_type).child(id).child('foods')
