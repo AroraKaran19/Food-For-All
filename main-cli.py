@@ -19,6 +19,9 @@ def login(org_type):
     return id
 
 org_type = "restaurants"
-# id = login(org_type)
-backend.search_food('roti')
-# backend.add_foods(id, {'roti': 10, 'sabzi': 5}, org_type)
+#id = login(org_type)
+# backend.search_food('roti')
+# backend.add_foods(id, {'paranthe': 10, 'sabzi': 5}, org_type)
+#print(backend.list_foods(id, org_type))
+# backend.add_foods(id, {'puri': 10, 'rice':30}, org_type, action='add')
+# print(backend.list_foods(id, org_type))

@@ -40,10 +40,28 @@ class Backend:
         })
 
     # add multiple foods with their quantities
-    def add_foods(self, id, foods, org_type):
-        # print(id, foods, org_type)
-        self.foods_ref = self.ref.child(org_type).child(id).child('foods')
-        self.foods_ref.update(foods)
+    def add_foods(self, id, foods, org_type, action='add'):
+        # if food already exists in node, action = update
+        if self.list_foods(id, org_type) != None:
+            action = 'update'
+        if action == 'add':
+            self.foods_ref = self.ref.child(org_type).child(id).child('foods')
+            self.foods_ref.update(foods)
+        elif action == 'remove':
+            self.foods_ref = self.ref.child(org_type).child(id).child('foods')
+            self.foods_ref.delete()
+        elif action == 'update':
+            # use list_foods to get the existing foods
+            existing_foods = self.list_foods(id, org_type)
+            for food in foods:
+                if food in existing_foods:
+                    existing_foods[food] += foods[food]
+                else:
+                    existing_foods[food] = foods[food]
+            self.foods_ref = self.ref.child(org_type).child(id).child('foods')
+            self.foods_ref.update(existing_foods)
+        
+        
 
     def list_foods(self, id, org_type):
         self.foods_ref = self.ref.child(org_type).child(id).child('foods')
@@ -52,20 +70,23 @@ class Backend:
     def search_food(self, food_name):
         rest_list = self.ref.child('restaurants').get()
         for rest in rest_list:
-            foods = self.list_foods(rest, 'restaurants')
-            if food_name in foods:
-                print(rest, foods[food_name])
+            try:
+                foods = self.list_foods(rest, 'restaurants')
+                if food_name in foods:
+                    print(rest, foods[food_name])
+            except:
+                pass
 
 
-def search_food(food_name):
-    rest_list = backend.ref.child('restaurants').get()
-    for rest in rest_list:
-        try:
-            foods = backend.list_foods(rest, 'restaurants')
-            if food_name in foods:
-                print(rest, foods[food_name])
-        except:
-            pass
+# def search_food(food_name):
+#     rest_list = backend.ref.child('restaurants').get()
+#     for rest in rest_list:
+#         try:
+#             foods = backend.list_foods(rest, 'restaurants')
+#             if food_name in foods:
+#                 print(rest, foods[food_name])
+#         except:
+#             pass
 
 
 if __name__ == "__main__":
