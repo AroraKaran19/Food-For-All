@@ -57,18 +57,22 @@ class Backend:
                 print(rest, foods[food_name])
 
 
-# def search_food(food_name):
-#     rest_list = backend.ref.child('restaurants').get()
-#     for rest in rest_list:
-#         foods = backend.list_foods(rest, 'restaurants')
-#         if food_name in foods:
-#             print(rest, foods[food_name])
+def search_food(food_name):
+    rest_list = backend.ref.child('restaurants').get()
+    for rest in rest_list:
+        try:
+            foods = backend.list_foods(rest, 'restaurants')
+            if food_name in foods:
+                print(rest, foods[food_name])
+        except:
+            pass
 
 
 if __name__ == "__main__":
-    id=login('restaurants')
+    #id=login('restaurants')
+    backend = Backend()
 
-    # search_food('roti')
+    search_food('roti')
 # food_n=int(input("Enter the number of food items you want to add: "))
 # foods={}
 # for i in range(food_n):
