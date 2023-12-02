@@ -60,6 +60,17 @@ class Backend:
                     existing_foods[food] = foods[food]
             self.foods_ref = self.ref.child(org_type).child(id).child('foods')
             self.foods_ref.update(existing_foods)
+
+    
+    def list_all_foods(self):
+        rest_list = self.ref.child('restaurants').get()
+        for rest in rest_list:
+            try:
+                foods = self.list_foods(rest, 'restaurants')
+                name = self.ref.child('restaurants').child(rest).get()['name']
+                print(name, foods)
+            except:
+                pass
         
         
 

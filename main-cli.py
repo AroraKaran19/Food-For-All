@@ -18,7 +18,8 @@ def login(org_type):
         print("User added successfully")
     return id
 
-org_type = "restaurants"
+#org_type = "restaurants"
+backend.list_all_foods()
 #id = login(org_type)
 # backend.search_food('roti')
 # backend.add_foods(id, {'paranthe': 10, 'sabzi': 5}, org_type)
