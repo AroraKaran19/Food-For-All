@@ -19,7 +19,7 @@ def login(org_type):
     return id
 
 #org_type = "restaurants"
-backend.list_all_foods()
+print(backend.list_all_foods())
 #id = login(org_type)
 # backend.search_food('roti')
 # backend.add_foods(id, {'paranthe': 10, 'sabzi': 5}, org_type)

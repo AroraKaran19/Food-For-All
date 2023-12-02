@@ -64,13 +64,16 @@ class Backend:
     
     def list_all_foods(self):
         rest_list = self.ref.child('restaurants').get()
+        food_data = {}
         for rest in rest_list:
+            data = {}
             try:
                 foods = self.list_foods(rest, 'restaurants')
                 name = self.ref.child('restaurants').child(rest).get()['name']
-                print(name, foods)
             except:
                 pass
+            food_data[name] = foods
+        return food_data
         
         
 
