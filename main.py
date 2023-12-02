@@ -4,6 +4,7 @@ import os
 import backend
 
 food_list = {}
+elements = []
 
 def ngo_gui():
     root = Tk()
@@ -129,7 +130,7 @@ def restaurant_gui():
 
     menu_canvas = Canvas(menu_frame, width=50, height=800, bg="white")
     menu_canvas.pack()
-    menu_canvas.bind("<Leave>", lambda event: menu(event, "close", menu_frame, menu_canvas, menu_button, gui=root))
+    menu_canvas.bind("<Leave>", lambda event: menu(event, "close", menu_frame, menu_canvas, menu_button, logout=True, gui=root))
 
     menu_button = Button(menu_canvas, text="☰", bg="black", fg="white", font=("Monolisa", 20, "bold"), activebackground="black", activeforeground="white", command=lambda: menu(None, "open", menu_frame, menu_canvas, menu_button, logout=True, gui=root))
     if os.name == "nt":
@@ -165,9 +166,8 @@ def user_validation(id, password, org_type, gui=None):
                 else:
                     showerror("Error", "Invalid Credentials!\nPlease try again!")
                     login("login", id)
-            except google.auth.exceptions.TransportError:
-                showerror("Error", "Something went wrong!\nPlease try again!")
-                login("login", id)
+            except Exception as e:
+                showerror("Error", "Invalid Credentials!\nPlease try again!" + str(e))
         else:
             ask = askokcancel("User Not Found", "User not found!\nDo you want to register?")
             if ask:
@@ -207,22 +207,29 @@ def menu(event, opt, frame, canvas, button, elements=[], logout=False, gui=None)
                 else:
                     logout_button = Button(canvas, text="Logout", bg="red", fg="white", font=("Monolisa", 20, "bold"), activebackground="black", activeforeground="white", command=lambda: (gui.destroy(), main_menu()))
                     canvas.create_window(100, 200, window=logout_button)
-                elements.append(logout_button)
+                elements.append(logout_button)       
             elements.append(menu_title)
-            button.config(command=lambda: menu(None, "close", frame, canvas, button, elements))
+            if logout:
+                button.config(command=lambda: menu(None, "close", frame, canvas, button, elements, logout=True, gui=gui))
+            else:
+                button.config(command=lambda: menu(None, "close", frame, canvas, button, elements, logout=False, gui=gui))
         except:
             pass
     else:
         frame.config(width=50)
         canvas.config(width=50)
         button.config(text="☰")
-        button.config(command=lambda: menu(None, "open", frame, canvas, button))
+        if logout:
+            button.config(command=lambda: menu(None, "open", frame, canvas, button, logout=True, gui=gui))
+        else:
+            button.config(command=lambda: menu(None, "open", frame, canvas, button, logout=False, gui=gui))
         if len(elements) != 0:
             for ele in elements:
                 try:
                     ele.destroy()
                 except:
                     pass
+            elements = []
 
 def login(method, prev=None):
     login_gui = Tk()
@@ -237,10 +244,7 @@ def login(method, prev=None):
     canvas.create_window(400, 60, window=title)
 
     back_button = Button(login_gui, text="←", bg="black", fg="white", font=("Monolisa", 20, "bold"), padx=10, activebackground="black", activeforeground="white", command=lambda: (login_gui.destroy(), main_menu()))
-    if os.name == "nt":
-        canvas.create_window(50, 40, window=back_button)
-    else:
-        canvas.create_window(50, 40, window=back_button)
+    canvas.create_window(50, 40, window=back_button)
 
     org_type_label = Label(login_gui, text="Organization Type", bg="#263D42", fg="white", font=("Monolisa", 20, "bold"))
     canvas.create_window(400, 200, window=org_type_label)
@@ -258,10 +262,7 @@ def login(method, prev=None):
         canvas.create_window(400, 100, window=subtitle)
 
         register_button = Button(login_gui, text="Register", bg="black", fg="white", font=("Monolisa", 20, "bold"), activebackground="black", activeforeground="white", command=lambda: (login_gui.destroy(), login("register")))
-        if os.name == "nt":
-            canvas.create_window(700, 40, window=register_button)
-        else:
-            canvas.create_window(700, 40, window=register_button)
+        canvas.create_window(700, 40, window=register_button)
     else:
         login_gui.title("FFA: Register")
         subtitle = Label(login_gui, text="Register", bg="#263D42", fg="white", font=("Monolisa", 15, "bold italic underline"))
@@ -294,10 +295,7 @@ def login(method, prev=None):
             canvas.create_window(400, 620, window=login_button)
     else:
         register_button = Button(login_gui, text="Register", bg="black", fg="white", font=("Monolisa", 20, "bold"), activebackground="black", activeforeground="white", command= lambda: user_registration(str(name.get()), str(id.get()), str(password.get()), str(org_type.get()), login_gui))
-        if os.name == "nt":
-            canvas.create_window(400, 620, window=register_button)
-        else:
-            canvas.create_window(400, 620, window=register_button)
+        canvas.create_window(400, 620, window=register_button)
 
     login_gui.eval('tk::PlaceWindow . center')
     login_gui.mainloop()
@@ -356,5 +354,5 @@ def main_menu():
     root.protocol("WM_DELETE_WINDOW", lambda: on_close(root))
     root.mainloop()
 
-if __name__ == "__main__":
-    main_menu()
+
+main_menu()
