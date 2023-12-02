@@ -33,11 +33,16 @@ class Backend:
 
     
     def add_user(self, id, name, password, org_type):
+        if self.check_user(id, org_type):
+            print("User already exists")
+            return False
         self.users_ref = self.ref.child(org_type)
         self.users_ref.child(id).set({
             'name': name,
             'password': password
         })
+        print("User added successfully")
+        return True
 
     # add multiple foods with their quantities
     def add_foods(self, id, foods, org_type, action='add'):
