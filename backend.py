@@ -41,6 +41,7 @@ class Backend:
 
     # add multiple foods with their quantities
     def add_foods(self, id, foods, org_type):
+        # print(id, foods, org_type)
         self.foods_ref = self.ref.child(org_type).child(id).child('foods')
         self.foods_ref.update(foods)
 
@@ -48,37 +49,26 @@ class Backend:
         self.foods_ref = self.ref.child(org_type).child(id).child('foods')
         return self.foods_ref.get()
 
+    def search_food(self, food_name):
+        rest_list = self.ref.child('restaurants').get()
+        for rest in rest_list:
+            foods = self.list_foods(rest, 'restaurants')
+            if food_name in foods:
+                print(rest, foods[food_name])
 
-backend = Backend()
 
-def login(org_type):
-    id = input("Enter your id: ")
-    if backend.check_user(id, org_type):
-        password = input("Enter your password: ")
-        if backend.validate_user(id, password, org_type):
-            print("Login successful")
-        else:
-            print("Invalid password")
-    else:  
-        print("User not found. Please signup!")
-        name = input("Enter your name: ")
-        password = input("Enter your password: ")
-        backend.add_user(id, name, password, org_type)
-        print("User added successfully")
-    return id
-
-def search_food(food_name):
-    rest_list = backend.ref.child('restaurants').get()
-    for rest in rest_list:
-        foods = backend.list_foods(rest, 'restaurants')
-        if food_name in foods:
-            print(rest, foods[food_name])
+# def search_food(food_name):
+#     rest_list = backend.ref.child('restaurants').get()
+#     for rest in rest_list:
+#         foods = backend.list_foods(rest, 'restaurants')
+#         if food_name in foods:
+#             print(rest, foods[food_name])
 
 
 if __name__ == "__main__":
     id=login('restaurants')
 
-    search_food('roti')
+    # search_food('roti')
 # food_n=int(input("Enter the number of food items you want to add: "))
 # foods={}
 # for i in range(food_n):
