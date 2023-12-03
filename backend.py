@@ -67,20 +67,16 @@ class Backend:
             self.foods_ref.update(existing_foods)
 
     
-    def list_all_foods(self, flag=0):
+    def list_all_foods(self):
         rest_list = self.ref.child('restaurants').get()
         food_data = {}
-        names = []
         for rest in rest_list:
             try:
                 foods = self.list_foods(rest, 'restaurants')
                 name = self.ref.child('restaurants').child(rest).get()['name']
             except:
                 pass
-            names.append(name)
             food_data[name] = foods
-        if flag == 1:
-            return names
         return food_data
         
         
