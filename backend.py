@@ -165,7 +165,7 @@ class Backend:
         else: 
             food_avail = food_data[restaurant_id].values().__iter__().__next__()[food_name]
             if int(food_avail) < quantity:
-                return food_avail
+                return [food_avail]
 
             # add food to cart
             # increment quantity if food already exists in cart
@@ -181,7 +181,7 @@ class Backend:
             # update cart data under restaurant_id
             self.ngo_ref.child('cart').child(restaurant_id).update({food_name: cart_data[food_name]})
 
-        return -1
+        return [-1, food_avail-quantity]
 
     def return_cart (self, ngo_id):
         # return in format {rest_id: {food_name: food_quantity}
