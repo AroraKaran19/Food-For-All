@@ -105,16 +105,39 @@ class Backend:
             except:
                 pass
 
-    def add_to_cart(ngo_id, restaurant_id, food_name, quantity):
+    def add_to_cart(self, ngo_id, restaurant_id, food_name, quantity):
         # make cart node if it doesn't exist
         # food_name and quantity goes to cart node
         
-        # check if food is available in any restaurant
+        food_data = self.list_all_foods(restaurant_id)
+        # food data is in the format {id : {restaurant_name: {food1: quantity1, food2: quantity2}}}
 
-        # food_data = self.list_all_foods(restaurant_id)
+        self.ngo_ref = self.ref.child('ngo').child(ngo_id)
 
-        pass
+        # if cart node doesn't exist, create it
+        if self.ngo_ref.child('cart').get() == None:
+            self.ngo_ref.child('cart').set({})
 
+        
+        food_avail = food_data[restaurant_id].values().__iter__().__next__()[food_name]
+        if food_avail < quantity:
+            return food_avail
+        
+        # add food to cart
+        # increment quantity if food already exists in cart
+
+        # get cart data
+        cart_data = self.ngo_ref.child('cart').get()
+        if food_name in cart_data:
+            cart_data[food_name] += quantity
+        else:
+            cart_data[food_name] = quantity
+
+        # update cart data
+        self.ngo_ref.child('cart').update(cart_data)
+
+
+        return -1
 
 
 # def search_food(food_name):
@@ -134,7 +157,9 @@ if __name__ == "__main__":
 
     #search_food('roti')
     # backend.list_foods("0431", 'restaurants')
-    print(backend.list_all_foods())
+    # print(backend.list_all_foods("0431"))
+    add_to_cart_status = backend.add_to_cart('0001', '1001', 'roti', 9)
+    print(add_to_cart_status)
 
 # food_n=int(input("Enter the number of food items you want to add: "))
 # foods={}
