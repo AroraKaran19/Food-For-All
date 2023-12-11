@@ -163,8 +163,8 @@ class Backend:
             self.ngo_ref.child('cart').child(restaurant_id).set({food_name: quantity})
 
         else: 
-            food_avail = food_data[restaurant_id].values().__iter__().__next__()[food_name]
-            if int(food_avail) < quantity:
+            food_avail = int(food_data[restaurant_id].values().__iter__().__next__()[food_name])
+            if food_avail < quantity:
                 return [food_avail]
 
             # add food to cart
@@ -209,7 +209,7 @@ if __name__ == "__main__":
     #search_food('roti')
     # backend.list_foods("0431", 'restaurants')
     # print(backend.list_all_foods("0431"))
-    add_to_cart_status = backend.add_to_cart("0001", "0431", "potato", 100)
+    add_to_cart_status = backend.add_to_cart("0001", "0431", "potato", 50)
     print(add_to_cart_status)
 
     print(backend.return_cart('0001'))
