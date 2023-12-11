@@ -154,29 +154,32 @@ class Backend:
 
         # if cart node doesn't exist, create it
         if self.ngo_ref.child('cart').get() is None:
-            self.ngo_ref.child('cart').set({})
+            print("cart node doesn't exist.. creating it")
+            # set cart with a restaurant_id node
+            self.ngo_ref.child('cart').set({restaurant_id: {food_name: quantity}})
 
-        # if node with restaurant_id doesn't exist in cart node, create it
-        if self.ngo_ref.child('cart').child(restaurant_id).get() is None:
-            self.ngo_ref.child('cart').child(restaurant_id).set({})
+        # if node with restaurant_id doesn't exist in cart node, create it and add food
+        elif self.ngo_ref.child('cart').child(restaurant_id).get() is None:
+            self.ngo_ref.child('cart').child(restaurant_id).set({food_name: quantity})
 
-        food_avail = food_data[restaurant_id].values().__iter__().__next__()[food_name]
-        if food_avail < quantity:
-            return food_avail
+        else: 
+            food_avail = food_data[restaurant_id].values().__iter__().__next__()[food_name]
+            if food_avail < quantity:
+                return food_avail
 
-        # add food to cart
-        # increment quantity if food already exists in cart
+            # add food to cart
+            # increment quantity if food already exists in cart
 
-        # get cart data
-        cart_data = self.ngo_ref.child('cart').child(restaurant_id).get()
+            # get cart data
+            cart_data = self.ngo_ref.child('cart').child(restaurant_id).get()
 
-        if food_name in cart_data:
-            cart_data[food_name] += quantity
-        else:
-            cart_data[food_name] = quantity
+            if food_name in cart_data:
+                cart_data[food_name] += quantity
+            else:
+                cart_data[food_name] = quantity
 
-        # update cart data under restaurant_id
-        self.ngo_ref.child('cart').child(restaurant_id).update({food_name: cart_data[food_name]})
+            # update cart data under restaurant_id
+            self.ngo_ref.child('cart').child(restaurant_id).update({food_name: cart_data[food_name]})
 
         return -1
 
@@ -203,7 +206,7 @@ if __name__ == "__main__":
     #search_food('roti')
     # backend.list_foods("0431", 'restaurants')
     # print(backend.list_all_foods("0431"))
-    add_to_cart_status = backend.add_to_cart('0001', '1001', 'roti', 9)
+    add_to_cart_status = backend.add_to_cart("0001", "0431", "potato", 100)
     print(add_to_cart_status)
 
     print(backend.return_cart('0001'))
