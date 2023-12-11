@@ -164,7 +164,7 @@ class Backend:
 
         else: 
             food_avail = food_data[restaurant_id].values().__iter__().__next__()[food_name]
-            if food_avail < quantity:
+            if int(food_avail) < quantity:
                 return food_avail
 
             # add food to cart
@@ -184,8 +184,11 @@ class Backend:
         return -1
 
     def return_cart (self, ngo_id):
-        # {rest_id: {food_name: food_quantity}
-        pass
+        # return in format {rest_id: {food_name: food_quantity}
+        # node structure is {ngo_id: {cart: {rest_id: {food_name: food_quantity}}}}
+        cart_data = self.ref.child('ngo').child(ngo_id).child('cart').get()
+        return cart_data
+        
         
 
 # def search_food(food_name):
@@ -210,6 +213,7 @@ if __name__ == "__main__":
     print(add_to_cart_status)
 
     print(backend.return_cart('0001'))
+
 
 # food_n=int(input("Enter the number of food items you want to add: "))
 # foods={}
