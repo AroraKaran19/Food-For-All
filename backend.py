@@ -67,22 +67,32 @@ class Backend:
             self.foods_ref.update(existing_foods)
 
     
-    def list_all_foods(self):
+    def list_all_foods(self, rest_id=None):
         rest_list = self.ref.child('restaurants').get()
         food_data = {}
-        for rest in rest_list:
+        # format {id : {restaurant_name: {food1: quantity1, food2: quantity2}}}
+        if rest_id != None:
+            # return food data of a particular restaurant
             try:
-                foods = self.list_foods(rest, 'restaurants')
-                name = self.ref.child('restaurants').child(rest).get()['name']
+                foods = self.list_foods(rest_id, 'restaurants')
+                name = self.ref.child('restaurants').child(rest_id).get()['name']
+                food_data[rest_id] = {name: foods}
             except:
                 pass
-            food_data[name] = foods
+        else:
+            for rest in rest_list:
+                try:
+                    foods = self.list_foods(rest, 'restaurants')
+                    name = self.ref.child('restaurants').child(rest).get()['name']
+                except:
+                    pass
+                food_data[rest] = {name: foods}
+                # print(food_data)
         return food_data
         
-        
-
     def list_foods(self, id, org_type):
         self.foods_ref = self.ref.child(org_type).child(id).child('foods')
+        # output looks like {'food1': quantity1, 'food2': quantity2}
         return self.foods_ref.get()
 
     def search_food(self, food_name):
@@ -94,6 +104,17 @@ class Backend:
                     print(rest, foods[food_name])
             except:
                 pass
+
+    def add_to_cart(ngo_id, restaurant_id, food_name, quantity):
+        # make cart node if it doesn't exist
+        # food_name and quantity goes to cart node
+        
+        # check if food is available in any restaurant
+
+        # food_data = self.list_all_foods(restaurant_id)
+
+        pass
+
 
 
 # def search_food(food_name):
@@ -111,7 +132,10 @@ if __name__ == "__main__":
     #id=login('restaurants')
     backend = Backend()
 
-    search_food('roti')
+    #search_food('roti')
+    # backend.list_foods("0431", 'restaurants')
+    print(backend.list_all_foods())
+
 # food_n=int(input("Enter the number of food items you want to add: "))
 # foods={}
 # for i in range(food_n):
