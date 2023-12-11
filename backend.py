@@ -151,6 +151,7 @@ class Backend:
         # food data is in the format {id : {restaurant_name: {food1: quantity1, food2: quantity2}}}
 
         self.ngo_ref = self.ref.child('ngo').child(ngo_id)
+        food_avail = int(food_data[restaurant_id].values().__iter__().__next__()[food_name])
 
         # if cart node doesn't exist, create it
         if self.ngo_ref.child('cart').get() is None:
@@ -163,7 +164,6 @@ class Backend:
             self.ngo_ref.child('cart').child(restaurant_id).set({food_name: quantity})
 
         else: 
-            food_avail = int(food_data[restaurant_id].values().__iter__().__next__()[food_name])
             if food_avail < quantity:
                 return [food_avail]
 
