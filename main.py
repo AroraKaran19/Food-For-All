@@ -151,10 +151,13 @@ def save(food_name, food_no):
     global food_count, food_list
     test = backend.Backend()
     id, org_type = retrieve_credentials()
-    if food_count == 0:
-        food_list[str(food_name.get())] = str(food_no.get())
+    if food_count == 0 and food_name.get() != "" and food_no.get() != "":
+        food_list[str(food_name.get().title())] = int(food_no.get())
     elif food_count > 0 and food_name.get() != "" and food_no.get() != "":
-        food_list[str(food_name.get())] = str(food_no.get())
+        food_list[str(food_name.get().title())] = int(food_no.get())
+    else:
+        showinfo("(!) Error (!)", "Please enter all details!")
+        return
     test.add_foods(id, food_list, org_type)
     food_name.set("")
     food_no.set("")
@@ -168,7 +171,7 @@ def add_count(label, food_name, food_no):
     global food_count, food_list
     food_count += 1
     label.config(text=f"Food Count: {food_count}")
-    food_list[str(food_name.get())] = str(food_no.get())
+    food_list[str(food_name.get())] = food_no.get()
     food_name.set("")
     food_no.set("")
 
@@ -204,10 +207,10 @@ def restaurant_gui():
     food_item_entry = Entry(root, textvariable=food_no, width=15, bg="white", fg="black", font=("Monolisa", 20, "bold"))
     canvas.create_window(400, 450, window=food_item_entry)
 
-    add_new_button = Button(root, text="Add New", bg="black", fg="white", font=("Monolisa", 20, "bold"), activebackground="black", activeforeground="white", command=lambda: add_count(food_label, food_name.title(), food_no))                
+    add_new_button = Button(root, text="Add New", bg="black", fg="white", font=("Monolisa", 20, "bold"), activebackground="black", activeforeground="white", command=lambda: add_count(food_label, food_name, food_no))                
     canvas.create_window(300, 550, window=add_new_button)
 
-    save_button = Button(root, text="Save", bg="black", fg="white", font=("Monolisa", 20, "bold"), activebackground="black", activeforeground="white", command=lambda: save(food_name.title(), food_no))
+    save_button = Button(root, text="Save", bg="black", fg="white", font=("Monolisa", 20, "bold"), activebackground="black", activeforeground="white", command=lambda: save(food_name, food_no))
     canvas.create_window(500, 550, window=save_button)
 
     menu_frame = Frame(root, bg="white", width=50, height=800)

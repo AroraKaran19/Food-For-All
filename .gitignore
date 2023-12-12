@@ -3,3 +3,5 @@ __pycache__
 credentials.txt
 tempCodeRunnerFile.py
 backend-rewrite.py
+auto-update.py
+config.json
