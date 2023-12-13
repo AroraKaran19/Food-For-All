@@ -1,0 +1,21 @@
+{
+    "rules": {
+      "NGO": {
+        ".read": false,
+        ".write": true,
+        "$uid": {
+          ".read": "auth.uid === $uid",
+          ".write": "auth.uid === $uid"
+        }
+      },
+     "RESTAURANT": {
+        ".read": false,
+        ".write": true,
+        "$uid": {
+          ".read": ".true",
+          ".write": "auth.uid === $uid"
+        }
+      }
+    }
+  }
+  
