@@ -2,6 +2,7 @@ keys
 __pycache__
 credentials.txt
 tempCodeRunnerFile.py
-backend-rewrite.py
 auto-update.py
 config.json
+backend-rewrite-dev.py
+firebase_config.json
