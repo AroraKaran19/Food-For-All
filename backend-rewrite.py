@@ -126,14 +126,15 @@ class Backend:
         return True
 
     def approve_order(self, ngo_uid, restaurant_uid, food_name=None, quantity=None):
-        # check if food is still available in restaurant
-        # if yes, approve order and decrement food quantity
-        # if no, return -1
+        # if food_name and quantity are None, approve all orders 
         if food_name == None and quantity == None:
+            # TODO: checking if food is available in restaurant before approving
             # delete the node under restaurant>orders>ngo_uid
             # add to NGO>approved_orders>restaurant_uid
             self.db.child('RESTAURANT').child(restaurant_uid).child('orders').child(ngo_uid).set(None)
             self.db.child('NGO').child(ngo_uid).child('approved_orders').child(restaurant_uid).set(True)
+        # check if food is still available in restaurant
+        # if yes, approve order and decrement food quantity
         else:
             food_avail = self.list_foods(restaurant_uid)[food_name]
             if food_avail < quantity:
