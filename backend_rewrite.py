@@ -82,8 +82,8 @@ class Backend:
         # if no, return -1
         # make cart node if it doesn't exist
         # food_name and quantity goes to cart node
-        food_avail = self.list_foods(restaurant_uid)[food_name]
-        if food_avail < quantity:
+        food_avail = int(self.list_foods(restaurant_uid)[food_name])
+        if food_avail < int(quantity):
             return [food_avail]
 
     
@@ -147,7 +147,14 @@ class Backend:
                 self.db.child('RESTAURANT').child(restaurant_uid).child('orders').child(ngo_uid).set(None)
                 self.db.child('NGO').child(ngo_uid).child('approved_orders').child(restaurant_uid).set(True)
         return -1
-        
-
-if __name__ == "__main__":
-    backend = Backend()
+    
+    def decline_order(self, ngo_uid, restaurant_uid):
+        # delete the node under restaurant>orders>ngo_uid
+        self.db.child('RESTAURANT').child(restaurant_uid).child('orders').child(ngo_uid).set(None)
+        return True
+    
+    def get_name(self, uid, org_type='RESTAURANT'):
+        return self.db.child(f"{org_type}").child(uid).child('name').get().val()
+    
+    def list_orders(self, uid, org_type='RESTAURANT'):
+        return dict(self.db.child(f"{org_type}").child(uid).child('orders').get().val())

@@ -1,11 +1,66 @@
 from tkinter import *
 from tkinter.messagebox import *
 import os
-import backend
+import backend_rewrite as backend
 
 food_list = {}
 elements = []
 check = backend.Backend()
+
+def cart_gui(ngo_id):
+    root = Toplevel()
+    root.title("FFA: Cart")
+    root.geometry("500x500")
+    root.resizable(False, False)
+    
+    canvas = Canvas(root, width=500, height=500, bg="#263D42")
+    canvas.pack()
+    
+    title = Label(root, text="CART", bg="#263D42", fg="white", font=("Monolisa", 30, "bold"))
+    canvas.create_window(250, 60, window=title)
+    
+    frame = LabelFrame(root, bg="white", height=300, width=370)
+    canvas.create_window(250, 250, window=frame)
+    
+    frame_canvas = Canvas(frame, bg="white", width=370, height=300)
+    frame_canvas.pack(side=LEFT)
+    
+    scroll_bar = Scrollbar(frame, orient="vertical", command=frame_canvas.yview)
+    
+    cart_data = check.return_cart(ngo_id)
+    height = 50
+    for restaurant in cart_data.keys():
+        restaurant_label = Label(frame_canvas, text=str(check.get_name(restaurant)), bg="white", fg="black", font=("Monolisa", 14, "bold"))
+        if len(check.get_name(restaurant)) <= 15:
+            frame_canvas.create_window(100, height, window=restaurant_label)
+        elif len(check.get_name(restaurant)) <= 30:
+            frame_canvas.create_window(200, height, window=restaurant_label)
+        else:
+            frame_canvas.create_window(300, height, window=restaurant_label)
+        height += 30
+        for food in cart_data[restaurant]:
+            food_label = Label(frame_canvas, text=f"{food.title()}: ", bg="white", fg="black", font=("Monolisa", 12, "bold"))
+            if len(food) <= 15:
+                frame_canvas.create_window(100, height, window=food_label)
+            elif len(food) <= 30:
+                frame_canvas.create_window(200, height, window=food_label)
+            else:
+                frame_canvas.create_window(300, height, window=food_label)
+            food_entry = Entry(frame_canvas, width=8, bg="white", fg="black", font=("Monolisa", 12, "bold"))
+            food_entry.insert(0, cart_data[restaurant][food])
+            food_entry.config(state="disable")
+            frame_canvas.create_window(200, height, window=food_entry)
+            height += 30
+        height += 40
+    
+    frame_canvas.configure(yscrollcommand=scroll_bar.set)
+    frame_canvas.bind("<Configure>", lambda e: frame_canvas.configure(scrollregion=frame_canvas.bbox("all")))
+    scroll_bar.pack(side="right", fill="y")
+    
+    place_order_button = Button(root, text="Place Order", bg="black", fg="white", font=("Monolisa", 16, "bold"), activebackground="black", activeforeground="white", command=lambda: (check.place_order(ngo_id), showinfo("Order Placed!", "Your Order Has Been Placed!"), root.destroy()))
+    canvas.create_window(250, 450, window=place_order_button)
+    
+    root.mainloop()
 
 def update_food_quantity(food_entry, quantity):
     food_entry.delete(0, END)
@@ -51,7 +106,7 @@ def show_foods_gui(rest_name, food_data, ngo_id=None, restaurant_id=None):
             else:
                 showerror("(!) Invalid Quantity (!)", "Please enter a valid quantity!")
         
-        add_order_button = Button(frame_canvas, text="Add to Order", bg="black", fg="white", font=("Monolisa", 10, "bold"), activebackground="black", activeforeground="white", command=cart)
+        add_order_button = Button(frame_canvas, text="🛒", bg="black", fg="white", font=("Monolisa", 10, "bold"), activebackground="black", activeforeground="white", command=cart)
         frame_canvas.create_window(550, height, window=add_order_button)
         height += 50
 
@@ -59,13 +114,13 @@ def show_foods_gui(rest_name, food_data, ngo_id=None, restaurant_id=None):
     frame_canvas.bind("<Configure>", lambda e: frame_canvas.configure(scrollregion=frame_canvas.bbox("all")))
     scroll_bar.pack(side="right", fill="y")
     
-    order_button = Button(root, text="Order", bg="black", fg="white", font=("Monolisa", 20, "bold"), activebackground="black", activeforeground="white")
-    canvas.create_window(400, 700, window=order_button)
+    close_button = Button(root, text="Close", bg="black", fg="white", font=("Monolisa", 16, "bold"), activebackground="black", activeforeground="white", command=root.destroy)
+    canvas.create_window(50, 50, window=close_button)
 
     root.eval('tk::PlaceWindow . center')
     root.mainloop()
 
-def ngo_gui(id=None):
+def ngo_gui(uid=None):
     root = Tk()
     root.title("FFA: NGO")
     root.geometry("800x800")
@@ -81,6 +136,9 @@ def ngo_gui(id=None):
     
     sub_heading = Label(root, text="Restaurant with Food", bg="#263D42", fg="white", font=("Monolisa", 22, "bold"))
     canvas.create_window(400, 200, window=sub_heading)
+    
+    cart_button = Button(root, text="🛒", bg="black", fg="white", font=("Monolisa", 20, "bold"), activebackground="black", activeforeground="white", command=lambda: cart_gui(uid))
+    canvas.create_window(700, 100, window=cart_button)
 
     # Food List
     frame = LabelFrame(root, bg="white", height=500, width=700)
@@ -99,9 +157,10 @@ def ngo_gui(id=None):
     restaurant_names, restaurant_ids = list(food_data.keys()), list(data.keys())
     for i in range(len(restaurant_ids)):
         rest_data[restaurant_ids[i]] = restaurant_names[i]
+        
     height = 50
     for rest_id, restaurant_name in rest_data.items():
-        def details(restaurant_n=restaurant_name, food_list=food_data[restaurant_name], restaurant_id=rest_id, ngo_id=id):
+        def details(restaurant_n=restaurant_name, food_list=food_data[restaurant_name], restaurant_id=rest_id, ngo_id=uid):
             show_foods_gui(restaurant_n, food_list, restaurant_id=restaurant_id, ngo_id=ngo_id)
         if food_data[restaurant_name] != None:
             restaurant = Button(frame_canvas, text=restaurant_name, fg="black", font=("Monolisa", 20, "bold"), bg="lime", activebackground="#263D42", activeforeground="white", command=details)
@@ -135,13 +194,74 @@ def ngo_gui(id=None):
     root.protocol("WM_DELETE_WINDOW", lambda: on_close(root))
     root.eval('tk::PlaceWindow . center')
     root.mainloop()
+    
+    
+def orders_gui(restaurant_id):
+    root = Toplevel()
+    root.title("FFA: Orders")
+    root.geometry("500x500")
+    root.resizable(False, False)
+    
+    canvas = Canvas(root, width=500, height=500, bg="#263D42")
+    canvas.pack()
+    
+    title = Label(root, text="ORDERS", bg="#263D42", fg="white", font=("Monolisa", 30, "bold"))
+    canvas.create_window(250, 60, window=title)
+    
+    frame = LabelFrame(root, bg="white", height=300, width=370)
+    canvas.create_window(250, 250, window=frame)
+    
+    frame_canvas = Canvas(frame, bg="white", width=370, height=300)
+    frame_canvas.pack(side=LEFT)
+    
+    scroll_bar = Scrollbar(frame, orient="vertical", command=frame_canvas.yview)
+    
+    order_data = check.list_orders(restaurant_id)
+    height = 50
+    for ngo_uid in order_data.keys():
+        name = check.get_name(ngo_uid, "NGO")
+        ngo_label = Label(frame_canvas, text=name, bg="white", fg="black", font=("Monolisa", 14, "bold"))
+        if len(name) <= 15:
+            frame_canvas.create_window(100, height, window=ngo_label)
+        elif len(name) <= 30:
+            frame_canvas.create_window(200, height, window=ngo_label)
+        else:
+            frame_canvas.create_window(300, height, window=ngo_label)
+        height += 30
+        for food in order_data[ngo_uid]:
+            food_label = Label(frame_canvas, text=f"{food.title()}: ", bg="white", fg="black", font=("Monolisa", 12, "bold"))
+            if len(food) <= 15:
+                frame_canvas.create_window(100, height, window=food_label)
+            elif len(food) <= 30:
+                frame_canvas.create_window(200, height, window=food_label)
+            else:
+                frame_canvas.create_window(300, height, window=food_label)
+            food_entry = Entry(frame_canvas, width=8, bg="white", fg="black", font=("Monolisa", 12, "bold"))
+            food_entry.insert(0, order_data[ngo_uid][food])
+            food_entry.config(state="disable")
+            frame_canvas.create_window(200, height, window=food_entry)
+            height += 30
+        approve_button = Button(frame_canvas, text="✓", bg="black", fg="white", font=("Monolisa", 10, "bold"), activebackground="black", activeforeground="white", command=lambda: (check.approve_order(ngo_uid, restaurant_id), showinfo("Order Approved!", "Order has been approved!"), root.destroy(), orders_gui(restaurant_id)))
+        frame_canvas.create_window(160, height, window=approve_button)
+        cancel_button = Button(frame_canvas, text="✗", bg="black", fg="white", font=("Monolisa", 10, "bold"), activebackground="black", activeforeground="white", command=lambda: (check.decline_order(ngo_uid, restaurant_id), showinfo("Order Cancelled!", "Order has been cancelled!"), root.destroy(), orders_gui(restaurant_id)))
+        frame_canvas.create_window(260, height, window=cancel_button)
+        height += 40
+        
+    frame_canvas.configure(yscrollcommand=scroll_bar.set)
+    frame_canvas.bind("<Configure>", lambda e: frame_canvas.configure(scrollregion=frame_canvas.bbox("all")))
+    scroll_bar.pack(side="right", fill="y")
+    
+    close_button = Button(root, text="Close", bg="black", fg="white", font=("Monolisa", 16, "bold"), activebackground="black", activeforeground="white", command=root.destroy)
+    canvas.create_window(50, 50, window=close_button)
+    
+    root.mainloop()
 
 def retrieve_credentials():
     if os.path.exists("credentials.txt"):
         with open("credentials.txt", "r") as file:
-            id = file.readline().strip().replace("\n", "")
+            uid = file.readline().strip().replace("\n", "")
             org_type = file.readline().strip().replace("\n", "")
-        return id, org_type
+        return uid, org_type
 
 def on_close(gui):
     if askokcancel("Quit", "Are you sure you want to quit?"):
@@ -149,8 +269,7 @@ def on_close(gui):
 
 def save(food_name, food_no):
     global food_count, food_list
-    test = backend.Backend()
-    id, org_type = retrieve_credentials()
+    email, org_type = retrieve_credentials()
     if food_count == 0 and food_name.get() != "" and food_no.get() != "":
         food_list[str(food_name.get().title())] = int(food_no.get())
     elif food_count > 0 and food_name.get() != "" and food_no.get() != "":
@@ -158,7 +277,8 @@ def save(food_name, food_no):
     else:
         showinfo("(!) Error (!)", "Please enter all details!")
         return
-    test.add_foods(id, food_list, org_type)
+    
+    check.add_foods(email, food_list, org_type)
     food_name.set("")
     food_no.set("")
     food_count = 0
@@ -176,7 +296,7 @@ def add_count(label, food_name, food_no):
     food_no.set("")
 
 
-def restaurant_gui():
+def restaurant_gui(uid=None):
     global food_count, food_list, food_label
     root = Tk()
     root.title("FFA: Restaurant")
@@ -213,6 +333,9 @@ def restaurant_gui():
     save_button = Button(root, text="Save", bg="black", fg="white", font=("Monolisa", 20, "bold"), activebackground="black", activeforeground="white", command=lambda: save(food_name, food_no))
     canvas.create_window(500, 550, window=save_button)
 
+    orders_button = Button(root, text="Orders", bg="black", fg="white", font=("Monolisa", 20, "bold"), activebackground="black", activeforeground="white", command=lambda: orders_gui(uid))
+    canvas.create_window(400, 650, window=orders_button)
+    
     menu_frame = Frame(root, bg="white", width=50, height=800)
     canvas.create_window(0, 0, anchor=NW, window=menu_frame)
 
@@ -237,52 +360,40 @@ def restaurant_gui():
     root.protocol("WM_DELETE_WINDOW", lambda: on_close(root))
     root.mainloop()
 
-def user_validation(id, password, org_type, gui=None):
+def user_validation(email, password, org_type, gui=None):
     if gui != None:
         gui.destroy()
-    if id.strip() != "" and password.strip() != "":
-        if check.check_user(id, org_type):
-            try:
-                if check.validate_user(id, password, org_type):
-                    if org_type == "restaurants":
-                        with open("credentials.txt", "w") as file:
-                            file.write(f"{id}\n{org_type}")
-                        restaurant_gui()
-                    elif org_type == "ngo":
-                        ngo_gui(id)
-                else:
-                    showerror("Error", "Invalid Credentials!\nPlease try again!")
-                    login("login", id)
-            except Exception as e:
-                showerror("Error", str(e))
-        else:
-            ask = askokcancel("User Not Found", "User not found!\nDo you want to register?")
-            if ask:
-                login("register", id)
+    if email.strip() != "" and password.strip() != "":
+        try:
+            if check.sign_in(email, password, org_type):
+                if org_type == "RESTAURANT":
+                    uid = check.sign_in(email, password, org_type)['localId']
+                    with open("credentials.txt", "w") as file:
+                        file.write(f"{uid}\n{org_type}")
+                    restaurant_gui(uid)
+                elif org_type == "NGO":
+                    uid = check.sign_in(email, password, org_type)['localId']
+                    ngo_gui(uid)
             else:
-                main_menu()
+                showerror("Error", "Invalid Credentials!\nPlease try again!")
+                login("login", email)
+        except Exception as e:
+            showerror("Error", str(e))
     else:
-        if id == "" and password == "":
-            showerror("Error", "Please enter all details!")
-        elif id == "":
-            showerror("Error", "Please enter your id!")
-        elif password == "":
-            showerror("Error", "Please enter your password!")
-        if id != "":
-            login("login", id)
-        else:
-            login("login")
+        ask = askokcancel("User Not Found", "User not found!\nDo you want to register?")
+        if ask:
+            login("register", email)
 
-def user_registration(name, id, password, org_type, gui):
+def user_registration(name, email, password, org_type, gui):
     check = backend.Backend()
-    registeration = check.add_user(id, name, password, org_type)
+    registeration = check.sign_up(email, name, password, org_type)
     if registeration:
         showinfo("Success", "User Registered Successfully!")
         gui.destroy()
-        user_validation(id, password, org_type)
+        user_validation(email, password, org_type)
     else:
         showerror("Error", "User already exists!")
-        login("register", id)
+        login("register", email)
 
 def show_selected(org_type):
     showinfo("Selected", f"Selected: {org_type.get().upper()}")
@@ -350,12 +461,12 @@ def login(method, prev=None):
     canvas.create_window(400, 200, window=org_type_label)
     
     org_type = StringVar()
-    org_type_radio1 = Radiobutton(login_gui, text="Restaurants", variable=org_type, value="restaurants", bg="#263D42", fg="white", font=("Monolisa", 20, "bold"))
-    org_type.set("restaurants")
+    org_type_radio1 = Radiobutton(login_gui, text="RESTAURANT", variable=org_type, value="RESTAURANT", bg="#263D42", fg="white", font=("Monolisa", 20, "bold"))
+    org_type.set("RESTAURANT")
     canvas.create_window(330, 250, window=org_type_radio1)
-    org_type_radio2 = Radiobutton(login_gui, text="NGO", variable=org_type, value="ngo", bg="#263D42", fg="white", font=("Monolisa", 20, "bold"))
+    org_type_radio2 = Radiobutton(login_gui, text="NGO", variable=org_type, value="NGO", bg="#263D42", fg="white", font=("Monolisa", 20, "bold"))
     canvas.create_window(530, 250, window=org_type_radio2)
-    org_type.trace("w", lambda *args: show_selected(org_type))
+    org_type.trace("w", lambda *args: show_selected(org_type)) # Shows the selected organization type
 
     if method == "login":
         subtitle = Label(login_gui, text="Login", bg="#263D42", fg="white", font=("Monolisa", 15, "bold italic underline"))
@@ -373,13 +484,13 @@ def login(method, prev=None):
         name_entry = Entry(login_gui, textvariable=name, width=15, bg="white", fg="black", font=("Monolisa", 20, "bold"))
         canvas.create_window(400, 350, window=name_entry)
 
-    id_label = Label(login_gui, text="ID", bg="#263D42", fg="white", font=("Monolisa", 20, "bold"))
-    canvas.create_window(400, 400, window=id_label)
-    id = StringVar()
+    email_label = Label(login_gui, text="Email", bg="#263D42", fg="white", font=("Monolisa", 20, "bold"))
+    canvas.create_window(400, 400, window=email_label)
+    email = StringVar()
     if prev != None:
-        id.set(prev)
-    id_entry = Entry(login_gui, textvariable=id, width=15, bg="white", fg="black", font=("Monolisa", 20, "bold"))
-    canvas.create_window(400, 450, window=id_entry)
+        email.set(prev)
+    email_entry = Entry(login_gui, textvariable=email, width=20, bg="white", fg="black", font=("Monolisa", 20, "bold"))
+    canvas.create_window(400, 450, window=email_entry)
 
     password_label = Label(login_gui, text="Password", bg="#263D42", fg="white", font=("Monolisa", 20, "bold"))
     canvas.create_window(400, 500, window=password_label)
@@ -388,13 +499,13 @@ def login(method, prev=None):
     canvas.create_window(400, 550, window=password_entry)
 
     if method == "login":
-        login_button = Button(login_gui, text="Login", bg="black", fg="white", font=("Monolisa", 20, "bold"), activebackground="black", activeforeground="white", command=lambda: user_validation(str(id.get()), str(password.get()), str(org_type.get()), login_gui))
+        login_button = Button(login_gui, text="Login", bg="black", fg="white", font=("Monolisa", 20, "bold"), activebackground="black", activeforeground="white", command=lambda: user_validation(str(email.get()), str(password.get()), str(org_type.get()), login_gui))
         if os.name == "nt":
             canvas.create_window(400, 620, window=login_button)
         else:
             canvas.create_window(400, 620, window=login_button)
     else:
-        register_button = Button(login_gui, text="Register", bg="black", fg="white", font=("Monolisa", 20, "bold"), activebackground="black", activeforeground="white", command= lambda: user_registration(str(name.get()), str(id.get()), str(password.get()), str(org_type.get()), login_gui))
+        register_button = Button(login_gui, text="Register", bg="black", fg="white", font=("Monolisa", 20, "bold"), activebackground="black", activeforeground="white", command= lambda: user_registration(str(name.get()), str(email.get()), str(password.get()), str(org_type.get()), login_gui))
         canvas.create_window(400, 620, window=register_button)
 
     login_gui.eval('tk::PlaceWindow . center')
